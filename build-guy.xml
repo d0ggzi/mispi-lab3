@@ -1,18 +1,11 @@
 <?xml version="1.0"?>
-<project name="mispi3">
+<project name="Basics-of-SE-Lab-3" default="report">
 
     <property name="src" location="src"/>
     <property name="class" location="target/classes"/>
     <property name="jar" location="target/artifacts"/>
     <property name="reports" location="target/reports"/>
     <property name="main-class" location="src/main/java/com/lab2/servlets/ControllerServlet.java"/>
-
-    <property name="git.repo.url" value="https://github.com/d0ggzi/mispi-lab3.git"/>
-    <property name="git.branch" value="main"/>
-    <property name="git.dir" value="git-checkout"/>
-    <property name="output.dir" value="dist"/>
-    <property name="params.file" value="src/params.txt"/>
-    <property name="commit.message" value="Changes committed by Ant"/>
 
     <path id="classpath">
         <fileset dir="lib" includes="**/*.jar"/>
@@ -66,16 +59,6 @@
         <echo>Program testing completed successfully!</echo>
     </target>
 
-    <target name="music" depends="build">
-        <sound>
-            <success source="music2.wav"/>
-        </sound>
-    </target>
-
-    <target name="scp" depends="build">
-        <scp file="${war}" todir="${host}:/${path}" password="${password}" port="${port}"/>
-    </target>
-
     <target name="xml" description="Validation of all xml files in the project">
         <echo>XML project files validation...</echo>
         <xmlvalidate lenient="true">
@@ -84,18 +67,6 @@
             </fileset>
         </xmlvalidate>
         <echo>XML files validation completed successfully!</echo>
-    </target>
-
-    <target name="team">
-        <mkdir dir="${output.dir}"/>
-
-        <for param="revision" from="-1" to="-3" step="-1">
-            <sequential>
-                <git dir="${git.dir}" branch="${git.branch}" rev="@{revision}" cloneSubmodules="true"/>
-                <ant antfile="${git.dir}/build.xml"/>
-                <zip destfile="${output.dir}/revision@{revision}.zip" basedir="${git.dir}/build"/>
-            </sequential>
-        </for>
     </target>
 
     <target name="report" depends="test" description="If test has been passed successfully, then make xml-jUnit-report and commit it">
@@ -122,31 +93,6 @@
             <arg value="${msg}"/>
         </exec>
         <echo>Report creating completed successfully!</echo>
-    </target>
-
-    <target name="diff">
-        <exec executable="git" outputproperty="diff.output">
-            <arg value="diff"/>
-        </exec>
-
-        <loadfile property="params" srcFile="${params.file}"/>
-        <condition property="changes" value="false">
-            <resourcecontains resource="${diff.output}" substring="${params}"/>
-        </condition>
-
-        <antcall target="commit" if="changes"/>
-    </target>
-
-    <target name="commit">
-        <exec executable="git">
-            <arg value="add"/>
-            <arg value="."/>
-        </exec>
-        <exec executable="git">
-            <arg value="commit"/>
-            <arg value="-m"/>
-            <arg value="${commit.message}"/>
-        </exec>
     </target>
 
 </project>

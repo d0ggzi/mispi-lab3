@@ -1,0 +1,131 @@
+<project name="web3">
+    <property file="build.properties"/>
+
+    <path id="libs">
+        <fileset dir="lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="classpath.base"/>
+
+    <path id="classpath.test">
+        <pathelement location="lib/*"/>
+        <pathelement location=".build/classes/com/example/web3test"/>
+        <path refid="classpath.base"/>
+    </path>
+
+
+    <target name="clean">
+        <delete dir="${dir.build}"/>
+        <delete dir="${test.report.dir}"/>
+    </target>
+
+    <target name="mkdir">
+        <mkdir dir="${dir.build}"/>
+        <mkdir dir="${dir.classes}"/>
+    </target>
+
+    <target name="copy.meta.inf" depends="mkdir">
+        <copy todir="${dir.meta-inf}">
+            <fileset dir="${dir.src.meta-inf}"/>
+        </copy>
+    </target>
+
+    <target name="compile" depends="copy.meta.inf">
+        <javac srcdir="${src.dir}" destdir="${dir.classes}">
+            <classpath>
+                <path refid="libs"/>
+            </classpath>
+        </javac>
+    </target>
+
+
+    <target name="build" depends="compile">
+        <mkdir dir="${web}"/>
+        <mkdir dir="${web.meta-inf}"/>
+        <mkdir dir="${web.resources}"/>
+        <mkdir dir="${web.web-inf}"/>
+        <mkdir dir="${web.web-inf}/classes"/>
+        <mkdir dir="${web.web-inf}/lib"/>
+        <copy todir="${web}">
+            <fileset dir="${webapp}"/>
+        </copy>
+        <copy todir="${web}/WEB-INF/classes">
+            <fileset dir="${dir.build}/classes"/>
+        </copy>
+        <copy todir="${web}/WEB-INF/lib">
+            <fileset dir="${dir.lib}"/>
+        </copy>
+
+        <manifest file="${web.meta-inf}/MANIFEST.MF">
+            <attribute name="Manifest-Version" value="1.0"/>
+            <attribute name="Package-version" value="${java.version}"/>
+            <attribute name="Created-By" value="${user.name}"/>
+            <attribute name="Main-class" value="MainBean"/>
+        </manifest>
+
+        <jar destfile="${war}"
+             basedir="${dir.build}">
+            <manifest>
+                <attribute name="Package-version" value="${java.version}"/>
+                <attribute name="Main-class" value="MainBean.class"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="music" depends="build">
+        <sound>
+            <success source="music2.wav"/>
+        </sound>
+    </target>
+
+    <target name="scp" depends="build">
+        <scp file="${war}" todir="${host}:/${path}" password="${password}" port="${port}"/>
+    </target>
+
+    <target name="test" depends="build">
+        <mkdir dir="${test.report.dir}"/>
+        <junit showoutput="yes" printsummary="on" haltonfailure="yes" failureproperty="test.failures">
+            <classpath>
+                <pathelement location="${dir.build}/classes"/>
+                <pathelement location="${dir.lib}/*.jar"/>
+            </classpath>
+            <batchtest todir=".report">
+                <formatter type="xml"/>
+                <fileset dir="${src.dir}/test/java">
+                    <include name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+        <property name="test.okay" value="${test.failures}"/>
+        <condition property="test.okay" value="true">
+            <not>
+                <isset property="test.failures"/>
+            </not>
+        </condition>
+    </target>
+
+    <target name="report" depends="test" if="test.okay">
+        <mkdir dir="${test.report.dir}"/>
+        <junitreport todir="${test.report.dir}">
+            <fileset dir="${test.report.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="noframes" todir="${test.report.dir}"/>
+        </junitreport>
+        <exec executable="git">
+            <arg value="init"/>
+        </exec>
+        <exec executable="git">
+            <arg value="add"/>
+            <arg value="${tests.report}"/>
+        </exec>
+        <exec executable="git">
+            <arg value="commit"/>
+            <arg value="-m"/>
+            <arg value="finally commited"/>
+        </exec>
+    </target>
+
+</project>
