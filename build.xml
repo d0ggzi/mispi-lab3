@@ -18,7 +18,13 @@
         <fileset dir="lib" includes="**/*.jar"/>
     </path>
 
-    <target name="compile" description="Compiling project sources">
+    <target name="clean" description="Deleting compiled project classes and all temporary files">
+        <echo>Cleaning...</echo>
+        <delete dir="${class}"/>
+        <echo>Cleaning completed successfully!</echo>
+    </target>
+
+    <target name="compile" description="Compiling project sources" depends="clean">
         <echo>Compiling project sources...</echo>
         <mkdir dir="${class}"/>
         <javac includeantruntime="true"
@@ -45,12 +51,6 @@
         <echo>Packaging completed successfully!</echo>
     </target>
 
-    <target name="clean" description="Deleting compiled project classes and all temporary files">
-        <echo>Cleaning...</echo>
-        <delete dir="${class}"/>
-        <echo>Cleaning completed successfully!</echo>
-    </target>
-
     <target name="test" depends="build" description="Running project jUnit-tests">
         <echo>Program testing...</echo>
         <junit printsummary="true" haltonfailure="true">
@@ -68,7 +68,7 @@
 
     <target name="music" depends="build">
         <sound>
-            <success source="music2.wav"/>
+            <success source="sound.wav"/>
         </sound>
     </target>
 
