@@ -13,6 +13,7 @@
     <property name="output.dir" value="dist"/>
     <property name="params.file" value="src/params.txt"/>
     <property name="commit.message" value="Changes committed by Ant"/>
+    <loadfile property="params" srcFile="${params.file}"/>
 
     <path id="classpath">
         <fileset dir="lib" includes="**/*.jar"/>
@@ -124,17 +125,26 @@
         <echo>Report creating completed successfully!</echo>
     </target>
 
-    <target name="diff">
+
+    <target name="CheckChanges">
         <exec executable="git" outputproperty="diff.output">
             <arg value="diff"/>
         </exec>
 
-        <loadfile property="params" srcFile="${params.file}"/>
-        <condition property="changes" value="false">
-            <resourcecontains resource="${diff.output}" substring="${params}"/>
+        <condition property="some.property">
+            <equals arg1="1" arg2="1" />
         </condition>
 
-        <antcall target="commit" if="changes"/>
+        <condition property="changes_in_diff">
+<!--            <resourcecontains resource="${diff.output}" substring="${params}"/>-->
+            <contains string="${diff.output}" substring="${params}"/>
+        </condition>
+
+        <echoproperties></echoproperties>
+    </target>
+
+    <target name="diff" if="changes_in_diff" depends="CheckChanges">
+        <antcall target="commit" />
     </target>
 
     <target name="commit">

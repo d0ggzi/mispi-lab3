@@ -1,0 +1,36 @@
+[1mdiff --git a/build.xml b/build.xml[m
+[1mindex a414ced..5fe6d8e 100644[m
+[1m--- a/build.xml[m
+[1m+++ b/build.xml[m
+[36m@@ -13,6 +13,7 @@[m
+     <property name="output.dir" value="dist"/>[m
+     <property name="params.file" value="src/params.txt"/>[m
+     <property name="commit.message" value="Changes committed by Ant"/>[m
+[32m+[m[32m    <loadfile property="params" srcFile="${params.file}"/>[m
+ [m
+     <path id="classpath">[m
+         <fileset dir="lib" includes="**/*.jar"/>[m
+[36m@@ -124,17 +125,16 @@[m
+         <echo>Report creating completed successfully!</echo>[m
+     </target>[m
+ [m
+[31m-    <target name="diff">[m
+[32m+[m[32m    <condition property="changes" value="false">[m
+[32m+[m[32m        <resourcecontains resource="${diff.output}" substring="${params}"/>[m
+[32m+[m[32m    </condition>[m
+[32m+[m
+[32m+[m[32m    <target name="diff" if="changes">[m
+         <exec executable="git" outputproperty="diff.output">[m
+             <arg value="diff"/>[m
+         </exec>[m
+ [m
+[31m-        <loadfile property="params" srcFile="${params.file}"/>[m
+[31m-        <condition property="changes" value="false">[m
+[31m-            <resourcecontains resource="${diff.output}" substring="${params}"/>[m
+[31m-        </condition>[m
+[31m-[m
+[31m-        <antcall target="commit" if="changes"/>[m
+[32m+[m[32m        <antcall target="commit" />[m
+     </target>[m
+ [m
+     <target name="commit">[m
